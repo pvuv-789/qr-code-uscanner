@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator</title>
+    <title>ScanEase - QR Code Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -12,215 +14,617 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Poppins', sans-serif;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            overflow-x: hidden;
+            position: relative;
         }
 
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
-            width: 100%;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 28px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 600;
-        }
-
-        input[type="url"] {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        input[type="url"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .qr-container {
-            margin-top: 30px;
-            text-align: center;
-            display: none;
-        }
-
-        .qr-container.active {
-            display: block;
-        }
-
-        #qrcode {
-            display: inline-block;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        #qrcode img {
-            display: block;
-        }
-
-        .url-display {
-            margin-top: 15px;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 8px;
-            word-break: break-all;
-            color: #666;
-            font-size: 14px;
-        }
-
-        .download-btn {
-            margin-top: 20px;
-            padding: 12px 30px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .download-btn:hover {
-            background: #218838;
-        }
-
-        .history {
-            margin-top: 30px;
-            border-top: 1px solid #e0e0e0;
-            padding-top: 20px;
-        }
-
-        .history h3 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .history-list {
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .history-item {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            background: #f9f9f9;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .history-item:hover {
-            background: #f0f0f0;
-        }
-
-        .history-item-qr {
-            width: 40px;
-            height: 40px;
-            margin-right: 10px;
-        }
-
-        .history-item-qr img {
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
+            overflow: hidden;
+            z-index: 0;
         }
 
-        .history-item-url {
-            flex: 1;
-            font-size: 13px;
-            color: #666;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+        .bg-animation span {
+            position: absolute;
+            display: block;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            animation: move 25s infinite linear;
+            bottom: -150px;
+            border-radius: 4px;
+        }
+
+        .bg-animation span:nth-child(1) { left: 10%; width: 80px; height: 80px; animation-delay: 0s; }
+        .bg-animation span:nth-child(2) { left: 20%; width: 30px; height: 30px; animation-delay: 2s; animation-duration: 12s; }
+        .bg-animation span:nth-child(3) { left: 35%; width: 100px; height: 100px; animation-delay: 4s; }
+        .bg-animation span:nth-child(4) { left: 50%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; }
+        .bg-animation span:nth-child(5) { left: 65%; width: 40px; height: 40px; animation-delay: 0s; }
+        .bg-animation span:nth-child(6) { left: 75%; width: 110px; height: 110px; animation-delay: 3s; }
+        .bg-animation span:nth-child(7) { left: 85%; width: 25px; height: 25px; animation-delay: 7s; }
+        .bg-animation span:nth-child(8) { left: 5%; width: 50px; height: 50px; animation-delay: 15s; animation-duration: 45s; }
+        .bg-animation span:nth-child(9) { left: 45%; width: 35px; height: 35px; animation-delay: 2s; animation-duration: 35s; }
+        .bg-animation span:nth-child(10) { left: 90%; width: 90px; height: 90px; animation-delay: 0s; animation-duration: 20s; }
+
+        @keyframes move {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-1500px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+        }
+
+        /* Header / Brand */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #00d9ff 0%, #00ff88 100%);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 40px rgba(0, 217, 255, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .logo-icon i {
+            font-size: 35px;
+            color: #1a1a2e;
+        }
+
+        .logo-text {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d9ff 0%, #00ff88 50%, #00d9ff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        .tagline {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 16px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        /* Main Card */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 50px 40px;
+            max-width: 550px;
+            width: 100%;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 18px;
+            z-index: 1;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 20px 20px 20px 55px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            color: white;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .url-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #00d9ff;
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.2);
         }
 
         .error-message {
-            color: #dc3545;
-            font-size: 14px;
+            color: #ff6b6b;
+            font-size: 13px;
             margin-top: 10px;
             display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-message i {
+            font-size: 14px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #00d9ff 0%, #00ff88 100%);
+            border: none;
+            border-radius: 15px;
+            color: #1a1a2e;
+            font-size: 18px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 217, 255, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* QR Code Display */
+        .qr-section {
+            margin-top: 40px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .qr-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .qr-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .qr-frame {
+            position: relative;
+            padding: 25px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .qr-frame::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            background: linear-gradient(135deg, #00d9ff, #00ff88, #00d9ff);
+            border-radius: 23px;
+            z-index: -1;
+            animation: borderGlow 3s linear infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        #qrcode {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #qrcode img, #qrcode canvas {
+            border-radius: 10px;
+        }
+
+        .url-badge {
+            margin-top: 25px;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            max-width: 100%;
+            word-break: break-all;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 14px 30px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #00ff88 0%, #00d9ff 100%);
+            border: none;
+            color: #1a1a2e;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* History Section */
+        .history-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+
+        .history-section.active {
+            display: block;
+        }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .history-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-title i {
+            color: #00d9ff;
+        }
+
+        .clear-history {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: color 0.3s;
+        }
+
+        .clear-history:hover {
+            color: #ff6b6b;
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .history-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-grid::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .history-grid::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(0, 217, 255, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .history-qr {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 8px;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+
+        .history-qr img, .history-qr canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .history-url {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 100%;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 13px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(0, 255, 136, 0.9);
+            color: #1a1a2e;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .logo-text {
+                font-size: 36px;
+            }
+
+            .logo-icon {
+                width: 55px;
+                height: 55px;
+            }
+
+            .logo-icon i {
+                font-size: 28px;
+            }
+
+            .card {
+                padding: 35px 25px;
+            }
+
+            .url-input {
+                padding: 18px 18px 18px 50px;
+                font-size: 15px;
+            }
+
+            .history-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>QR Code Generator</h1>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+    </div>
 
-        <div class="input-group">
-            <label for="urlInput">Enter Website URL</label>
-            <input type="url" id="urlInput" placeholder="https://example.com" required>
-            <p class="error-message" id="errorMsg">Please enter a valid URL</p>
+    <div class="main-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <h1 class="logo-text">ScanEase</h1>
+            </div>
+            <p class="tagline">GENERATE QR CODES INSTANTLY</p>
+        </header>
+
+        <!-- Main Card -->
+        <div class="card">
+            <div class="input-section">
+                <label class="input-label">Enter your website URL</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-link input-icon"></i>
+                    <input type="url" class="url-input" id="urlInput" placeholder="https://example.com">
+                </div>
+                <div class="error-message" id="errorMsg">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Please enter a valid URL</span>
+                </div>
+            </div>
+
+            <button class="generate-btn" onclick="generateQR()">
+                <i class="fas fa-magic"></i>
+                <span>Generate QR Code</span>
+            </button>
+
+            <!-- QR Code Display -->
+            <div class="qr-section" id="qrSection">
+                <div class="qr-wrapper">
+                    <div class="qr-frame">
+                        <div id="qrcode"></div>
+                    </div>
+                    <div class="url-badge" id="urlBadge"></div>
+                    <div class="action-buttons">
+                        <button class="action-btn download-btn" onclick="downloadQR()">
+                            <i class="fas fa-download"></i>
+                            <span>Download</span>
+                        </button>
+                        <button class="action-btn copy-btn" onclick="copyURL()">
+                            <i class="fas fa-copy"></i>
+                            <span>Copy URL</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div class="history-section" id="historySection">
+                <div class="history-header">
+                    <h3 class="history-title">
+                        <i class="fas fa-clock"></i>
+                        Recent Codes
+                    </h3>
+                    <button class="clear-history" onclick="clearHistory()">Clear All</button>
+                </div>
+                <div class="history-grid" id="historyGrid"></div>
+            </div>
         </div>
 
-        <button class="btn" onclick="generateQR()">Generate QR Code</button>
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Made with <i class="fas fa-heart" style="color: #ff6b6b;"></i> by ScanEase</p>
+        </footer>
+    </div>
 
-        <div class="qr-container" id="qrContainer">
-            <div id="qrcode"></div>
-            <div class="url-display" id="urlDisplay"></div>
-            <button class="download-btn" onclick="downloadQR()">Download QR Code</button>
-        </div>
-
-        <div class="history" id="historySection" style="display: none;">
-            <h3>Recent QR Codes</h3>
-            <div class="history-list" id="historyList"></div>
-        </div>
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Copied to clipboard!</span>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         let qrcode = null;
-        let history = JSON.parse(localStorage.getItem('qrHistory')) || [];
+        let currentURL = '';
+        let history = JSON.parse(localStorage.getItem('scanease_history')) || [];
 
-        // Load history on page load
         window.onload = function() {
             renderHistory();
         };
@@ -234,28 +638,37 @@
             }
         }
 
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
         function generateQR() {
             const urlInput = document.getElementById('urlInput');
             const errorMsg = document.getElementById('errorMsg');
-            const qrContainer = document.getElementById('qrContainer');
+            const qrSection = document.getElementById('qrSection');
             const qrcodeDiv = document.getElementById('qrcode');
-            const urlDisplay = document.getElementById('urlDisplay');
+            const urlBadge = document.getElementById('urlBadge');
 
             let url = urlInput.value.trim();
 
-            // Add https:// if no protocol specified
+            // Add https:// if no protocol
             if (url && !url.match(/^https?:\/\//i)) {
                 url = 'https://' + url;
                 urlInput.value = url;
             }
 
             if (!url || !isValidURL(url)) {
-                errorMsg.style.display = 'block';
-                qrContainer.classList.remove('active');
+                errorMsg.style.display = 'flex';
+                qrSection.classList.remove('active');
                 return;
             }
 
             errorMsg.style.display = 'none';
+            currentURL = url;
 
             // Clear previous QR code
             qrcodeDiv.innerHTML = '';
@@ -263,83 +676,82 @@
             // Generate new QR code
             qrcode = new QRCode(qrcodeDiv, {
                 text: url,
-                width: 256,
-                height: 256,
-                colorDark: '#000000',
+                width: 220,
+                height: 220,
+                colorDark: '#1a1a2e',
                 colorLight: '#ffffff',
                 correctLevel: QRCode.CorrectLevel.H
             });
 
-            urlDisplay.textContent = url;
-            qrContainer.classList.add('active');
+            urlBadge.textContent = url;
+            qrSection.classList.add('active');
 
             // Add to history
             addToHistory(url);
         }
 
         function addToHistory(url) {
-            // Check if URL already exists in history
             const existingIndex = history.findIndex(item => item.url === url);
             if (existingIndex > -1) {
                 history.splice(existingIndex, 1);
             }
 
-            // Add to beginning of history
             history.unshift({
                 url: url,
                 timestamp: new Date().toISOString()
             });
 
-            // Keep only last 10 items
-            if (history.length > 10) {
-                history = history.slice(0, 10);
+            if (history.length > 12) {
+                history = history.slice(0, 12);
             }
 
-            // Save to localStorage
-            localStorage.setItem('qrHistory', JSON.stringify(history));
-
+            localStorage.setItem('scanease_history', JSON.stringify(history));
             renderHistory();
         }
 
         function renderHistory() {
             const historySection = document.getElementById('historySection');
-            const historyList = document.getElementById('historyList');
+            const historyGrid = document.getElementById('historyGrid');
 
             if (history.length === 0) {
-                historySection.style.display = 'none';
+                historySection.classList.remove('active');
                 return;
             }
 
-            historySection.style.display = 'block';
-            historyList.innerHTML = '';
+            historySection.classList.add('active');
+            historyGrid.innerHTML = '';
 
             history.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'history-item';
                 div.onclick = () => loadFromHistory(item.url);
 
+                const hostname = new URL(item.url).hostname;
+
                 div.innerHTML = `
-                    <div class="history-item-qr" id="historyQr${index}"></div>
-                    <div class="history-item-url">${item.url}</div>
+                    <div class="history-qr" id="historyQr${index}"></div>
+                    <div class="history-url">${hostname}</div>
                 `;
 
-                historyList.appendChild(div);
+                historyGrid.appendChild(div);
 
-                // Generate mini QR code for history item
-                new QRCode(document.getElementById(`historyQr${index}`), {
-                    text: item.url,
-                    width: 40,
-                    height: 40,
-                    colorDark: '#000000',
-                    colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.L
-                });
+                setTimeout(() => {
+                    new QRCode(document.getElementById(`historyQr${index}`), {
+                        text: item.url,
+                        width: 50,
+                        height: 50,
+                        colorDark: '#1a1a2e',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+                }, 50);
             });
         }
 
         function loadFromHistory(url) {
             document.getElementById('urlInput').value = url;
             generateQR();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function downloadQR() {
@@ -353,17 +765,34 @@
             } else if (img) {
                 dataURL = img.src;
             } else {
-                alert('No QR code to download');
+                showToast('No QR code to download');
                 return;
             }
 
             const link = document.createElement('a');
-            link.download = 'qrcode-' + Date.now() + '.png';
+            const hostname = new URL(currentURL).hostname.replace(/\./g, '-');
+            link.download = `scanease-${hostname}-${Date.now()}.png`;
             link.href = dataURL;
             link.click();
+
+            showToast('QR Code downloaded!');
         }
 
-        // Generate QR code on Enter key press
+        function copyURL() {
+            if (currentURL) {
+                navigator.clipboard.writeText(currentURL);
+                showToast('URL copied to clipboard!');
+            }
+        }
+
+        function clearHistory() {
+            history = [];
+            localStorage.removeItem('scanease_history');
+            renderHistory();
+            showToast('History cleared!');
+        }
+
+        // Generate on Enter key
         document.getElementById('urlInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 generateQR();
